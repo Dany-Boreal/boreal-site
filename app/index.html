@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr-CA"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon entraînement - Boréal Athlétique</title><link rel="icon" href="/icone.png">
+<style>body{margin:0;background:#F4F1EA;color:#16302A;font:17px/1.5 Arial,sans-serif}#c{max-width:560px;margin:80px auto;padding:0 16px;text-align:center}a{color:#B83A12}</style>
+</head><body><div id="c">Chargement de ton entraînement…</div>
+<script>
+(function () {
+  var X = 'https://script.google.com/macros/s/AKfycbxqFwuquTHuF-vA1rVfpj7n2TAyDYRySh5upsC0gPa9WDclZoYRKHRYz86hWcxAoQSY/exec';
+  var q = new URLSearchParams(location.search), P = {}; q.forEach(function (v, k) { P[k] = v; });
+  // Remplace google.script (absent hors de Google) : appels au script par la route sans témoins (doPost)
+  var STUB = "window.google={script:{url:{getLocation:function(cb){cb({parameter:" + JSON.stringify(P).replace(/</g, '\\u003c') + "});}}," +
+    "run:(function(){var ok=null,ko=null,p;p=new Proxy({},{get:function(o,n){if(n==='withSuccessHandler')return function(f){ok=f;return p;};" +
+    "if(n==='withFailureHandler')return function(f){ko=f;return p;};var a=ok,b=ko;ok=null;ko=null;return function(){var args=[].slice.call(arguments);" +
+    "fetch(" + JSON.stringify(X) + ",{method:'POST',credentials:'omit',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:String(n),args:args})})" +
+    ".then(function(r){return r.json();}).then(function(j){if(j&&j.ok){if(a)a(j.val);}else if(b)b(new Error(j&&j.err||'Erreur du serveur'));})" +
+    ".catch(function(e){if(b)b(new Error('NetworkError '+(e&&e.message||'')));});};}});return p;})()}};";
+  var secours = function () {
+    document.getElementById('c').innerHTML = 'L\'app ne s\'ouvre pas. <a href="' + X + location.search + '">Ouvrir la version de secours</a>, ou écris à <a href="mailto:dany@borealathletique.com">dany@borealathletique.com</a>.';
+  };
+  fetch(X + '?apphtml=1', { credentials: 'omit', redirect: 'follow' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(function (h) {
+      if (h.indexOf('<head>') < 0) throw new Error('page');
+      h = h.replace('<head>', '<head><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mon entraînement - Boréal Athlétique</title><link rel="icon" href="/icone.png"><script>' + STUB + '<\/script>').replace('<base target="_top">', '');
+      document.open(); document.write(h); document.close();
+    })
+    .catch(secours);
+})();
+</script>
+</body></html>
