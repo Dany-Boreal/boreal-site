@@ -11,12 +11,15 @@
   var STUB = "window.google={script:{url:{getLocation:function(cb){cb({parameter:" + JSON.stringify(P).replace(/</g, '\\u003c') + "});}}," +
     "run:(function(){var ok=null,ko=null,p;p=new Proxy({},{get:function(o,n){if(n==='withSuccessHandler')return function(f){ok=f;return p;};" +
     "if(n==='withFailureHandler')return function(f){ko=f;return p;};var a=ok,b=ko;ok=null;ko=null;return function(){var args=[].slice.call(arguments);" +
-    "fetch(" + JSON.stringify(X) + ",{method:'POST',credentials:'omit',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:String(n),args:args})})" +
-    ".then(function(r){return r.json();}).then(function(j){if(j&&j.ok){if(a)a(j.val);}else if(b)b(new Error(j&&j.err||'Erreur du serveur'));})" +
+    "var F=function(){return fetch(" + JSON.stringify(X) + ",{method:'POST',credentials:'omit',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:String(n),args:args})}).then(function(r){return r.json();});};" +
+    "var pr=window.__BA_PRE,q;if(n==='appDonnees'&&pr&&pr.a[0]===args[0]&&pr.a[1]===args[1]){window.__BA_PRE=null;q=pr.p.catch(F);}else q=F();" +
+    "q.then(function(j){if(j&&j.ok){if(a)a(j.val);}else if(b)b(new Error(j&&j.err||'Erreur du serveur'));})" +
     ".catch(function(e){if(b)b(new Error('NetworkError '+(e&&e.message||'')));});};}});return p;})()}};";
   var secours = function () {
     document.getElementById('c').innerHTML = 'L\'app ne s\'ouvre pas. <a href="' + X + location.search + '">Ouvrir la version de secours</a>, ou écris à <a href="mailto:dany@borealathletique.com">dany@borealathletique.com</a>.';
   };
+  // Les données du client partent en même temps que la page (au lieu d'après) : l'app les reprend à son premier appel
+  if (P.client && P.jeton) window.__BA_PRE = { a: [P.client, P.jeton], p: fetch(X, { method: 'POST', credentials: 'omit', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: 'appDonnees', args: [P.client, P.jeton] }) }).then(function (r) { return r.json(); }) };
   fetch(X + '?apphtml=1', { credentials: 'omit', redirect: 'follow' })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
     .then(function (h) {
