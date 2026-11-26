@@ -7,6 +7,8 @@
 (function () {
   var X = 'https://script.google.com/macros/s/AKfycbxqFwuquTHuF-vA1rVfpj7n2TAyDYRySh5upsC0gPa9WDclZoYRKHRYz86hWcxAoQSY/exec';
   var q = new URLSearchParams(location.search), P = {}; q.forEach(function (v, k) { P[k] = v; });
+  // Renouvellement et inscription : pages à part du script (le lien de l'app + &renouvellement=1 doit marcher aussi depuis le domaine)
+  if (P.renouvellement !== undefined || P.inscription !== undefined) { location.replace(X + location.search); return; }
   // Remplace google.script (absent hors de Google) : appels au script par la route sans témoins (doPost)
   var STUB = "window.google={script:{url:{getLocation:function(cb){cb({parameter:" + JSON.stringify(P).replace(/</g, '\\u003c') + "});}}," +
     "run:(function(){var ok=null,ko=null,p;p=new Proxy({},{get:function(o,n){if(n==='withSuccessHandler')return function(f){ok=f;return p;};" +
