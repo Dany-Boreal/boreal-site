@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr-CA"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer">
+<title>Texter un client - Boréal Athlétique</title><link rel="icon" href="/icone.png">
+<style>
+:root{--fond:#F4F1EA;--encre:#16302A;--doux:#5A5A52;--accent:#D9481C;--carte:#fff;--ligne:#DDD6C8}
+@media (prefers-color-scheme: dark){:root{--fond:#14201C;--encre:#EDE9DF;--doux:#A9A69C;--carte:#1D2B26;--ligne:#34443E}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fond);color:var(--encre);font:17px/1.5 Arial,sans-serif}
+#c{max-width:520px;margin:0 auto;padding:28px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}
+.num{color:var(--doux);margin:0 0 18px}
+textarea{width:100%;min-height:190px;padding:12px;border:1px solid var(--ligne);border-radius:8px;background:var(--carte);color:var(--encre);font:16px/1.45 Arial,sans-serif}
+.b{display:block;width:100%;margin-top:14px;padding:15px;border:0;border-radius:8px;font:bold 18px Arial,sans-serif;text-align:center;text-decoration:none;cursor:pointer}
+.go{background:var(--accent);color:#fff}
+.cp{background:transparent;color:var(--encre);border:1px solid var(--ligne)}
+.note{color:var(--doux);font-size:14px;margin-top:16px}
+</style>
+</head><body><div id="c">
+<h1 id="titre">Texter un client</h1>
+<p class="num" id="num"></p>
+<textarea id="t" aria-label="Texte du texto"></textarea>
+<a class="b go" id="go" href="#">Ouvrir Messages</a>
+<button class="b cp" id="cp" type="button">Copier le texte</button>
+<p class="note">Le texte et le lien s'ouvrent dans Messages, avec le numéro déjà écrit. Tu peux corriger le texte ici avant. Rien n'est envoyé tant que tu n'appuies pas sur Envoyer dans Messages.</p>
+</div>
+<script>
+(function () {
+  // Les données sont après le # : elles ne quittent jamais le téléphone (aucun serveur ne les reçoit).
+  var P = {}; location.hash.replace(/^#/, '').split('&').forEach(function (x) { var i = x.indexOf('='); if (i > 0) { try { P[x.slice(0, i)] = decodeURIComponent(x.slice(i + 1)); } catch (e) {} } });
+  var n = String(P.n || '').replace(/[^+\d]/g, ''), t = document.getElementById('t'), go = document.getElementById('go');
+  t.value = P.t || '';
+  if (P.p) document.getElementById('titre').textContent = 'Texter ' + P.p;
+  var d = n.replace(/^\+1/, '');
+  document.getElementById('num').textContent = d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : 'Numéro manquant ou invalide.';
+  var lien = function () { return 'sms:' + n + '?&body=' + encodeURIComponent(t.value); };
+  go.href = lien(); t.addEventListener('input', function () { go.href = lien(); });
+  document.getElementById('cp').addEventListener('click', function () {
+    var b = this; var fini = function () { b.textContent = 'Copié'; setTimeout(function () { b.textContent = 'Copier le texte'; }, 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t.value).then(fini, function () { t.select(); document.execCommand('copy'); fini(); });
+    else { t.select(); document.execCommand('copy'); fini(); }
+  });
+  if (n) setTimeout(function () { location.href = lien(); }, 400);   // essaie d'ouvrir Messages tout de suite ; sinon, le bouton
+})();
+</script>
+</body></html>
